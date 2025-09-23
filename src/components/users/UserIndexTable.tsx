@@ -1,10 +1,14 @@
 "use client";
 
-import { Button, Flex, Table, TableProps } from "antd";
+import { Button, Flex, Pagination, Table, TableProps } from "antd";
 import { UserEntity } from "./entity";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { UserDestory } from "./UserDestroy";
 
 export const UserIndexTable = ({ users }: { users: UserEntity[] }) => {
+  const router = useRouter();
+
   const columns: TableProps<UserEntity>["columns"] = [
     {
       title: "Name",
@@ -25,10 +29,10 @@ export const UserIndexTable = ({ users }: { users: UserEntity[] }) => {
       title: "Actions",
       render: (_, record) => {
         return (
-          <div>
+          <Flex gap={"small"}>
             <Button href={`/users/${record.id}/edit`}>Edit</Button>
-            <Button>Hapus</Button>
-          </div>
+            <UserDestory user={record} />
+          </Flex>
         );
       },
     },
@@ -39,7 +43,19 @@ export const UserIndexTable = ({ users }: { users: UserEntity[] }) => {
       <Button type="primary" href="/users/new">
         Tambah User
       </Button>
-      <Table<UserEntity> columns={columns} dataSource={users} />
+      <Table<UserEntity>
+        columns={columns}
+        dataSource={users}
+        pagination={{
+          total: 97,
+        }}
+        rowKey={(record) => record.id}
+        onChange={(pagination) => {
+          const current = pagination.current ?? 1;
+          const pageSize = pagination.pageSize ?? 10;
+          router.replace(`/users?page=${current}&limit=${pageSize}`);
+        }}
+      />
     </Flex>
   );
 };
